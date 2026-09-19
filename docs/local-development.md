@@ -42,6 +42,31 @@ curl -I http://localhost:8000/
 
 Stop everything with `docker compose down`.
 
+### Running tests
+
+Feature tests run against a dedicated MySQL database (`phpunit.xml` sets
+`DB_CONNECTION=mysql`, `DB_DATABASE=super_score_testing`, reusing the
+`mysql` service's credentials) rather than sqlite, so they exercise the
+same database engine as production. Create the test database once per
+MySQL container/volume:
+
+```bash
+docker compose exec mysql mysql -uroot -p"${DB_PASSWORD:-secret}" \
+  -e "CREATE DATABASE IF NOT EXISTS super_score_testing; \
+      GRANT ALL PRIVILEGES ON super_score_testing.* TO '${DB_USERNAME:-super_score}'@'%'; \
+      FLUSH PRIVILEGES;"
+```
+
+Then run the suite:
+
+```bash
+docker compose exec app php artisan test
+docker compose exec app ./vendor/bin/pint --test
+```
+
+`RefreshDatabase` (used by all Feature tests) migrates this database
+fresh on each run — it's fine to drop and recreate it at any time.
+
 ### Running without Docker
 
 You can run the Laravel app directly against the host PHP for quick

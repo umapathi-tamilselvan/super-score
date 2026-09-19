@@ -5,19 +5,23 @@ They will be extended as cricket domain features are added.
 
 ## Scope of this stage
 
-This repository currently contains **only the project foundation**:
+Per [implementation-plan.md](implementation-plan.md), the web app
+(backend + Blade) is being built end-to-end through six phases before
+mobile starts. Current status:
 
-- A Laravel app (`backend/`) with a health-check API endpoint and a
-  placeholder home page, Sanctum and Reverb installed, MySQL/Redis/Queue
-  configured, and a Docker Compose dev environment.
+- **Phase 1 — Foundation: done.** Registration, OTP verification
+  (email), login, logout, forgot/reset password, profile setup/edit, and
+  a dashboard shell — on both `/api/v1` and the Blade web app, sharing
+  the same `AuthService`/`OtpService`/`ProfileService` layer. See
+  [api.md](api.md) for the endpoint list.
+- **Phase 2 onward — not started.** No players, teams, tournaments,
+  matches, playing XI, toss, innings, overs, deliveries, wickets, extras,
+  partnerships, scorecards, statistics, leaderboards, live scoring, live
+  commentary, or analytics. No notifications, payments, social features,
+  AI features, fantasy cricket, or live streaming.
 - A React Native app (`mobile/`) with a single placeholder screen, basic
-  navigation, and a centralized API client, ready to grow.
-
-No cricket domain logic exists yet: no players, teams, tournaments,
-matches, playing XI, toss, innings, overs, deliveries, wickets, extras,
-partnerships, scorecards, statistics, leaderboards, live scoring, live
-commentary, or analytics. No admin dashboard, notifications, payments,
-social features, AI features, fantasy cricket, or live streaming.
+  navigation, and a centralized API client — mobile work doesn't start
+  until the web track finishes (see implementation-plan.md).
 
 When those features are built, they should slot into the structure
 already in place (`app/Actions`, `app/Services`, `app/Http/Controllers/Api/V1`,

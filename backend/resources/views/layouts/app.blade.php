@@ -6,8 +6,11 @@
     <title>@yield('title', config('app.name', 'Super Score'))</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 <body>
     @yield('content')
+
+    @stack('scripts')
 </body>
 </html>

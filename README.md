@@ -108,3 +108,5 @@ npx tsc --noEmit
 - [docs/api.md](docs/api.md) — REST API conventions and endpoints
 - [docs/local-development.md](docs/local-development.md) — full local dev setup
 - [docs/development-guidelines.md](docs/development-guidelines.md) — code quality and contribution guidelines
+- [docs/super-score-application-flow.md](docs/super-score-application-flow.md) — full product/UX flow
+- [docs/implementation-plan.md](docs/implementation-plan.md) — phased build plan (web first, then mobile)

@@ -20,20 +20,23 @@ and the Blade web application.
 backend/
 ├── app/
 │   ├── Actions/                   Single-purpose application actions
+│   ├── Enums/                     OtpPurpose, PreferredRole, etc.
 │   ├── Events/                    Domain events
 │   ├── Exceptions/                Custom exceptions
 │   ├── Http/
 │   │   ├── Controllers/
 │   │   │   ├── Api/V1/            API controllers (versioned)
 │   │   │   └── Web/               Web (Blade) controllers
-│   │   ├── Middleware/
+│   │   ├── Middleware/             e.g. EnsureOtpVerified
 │   │   ├── Requests/               Form request validation classes
 │   │   └── Resources/              API resource transformers
 │   ├── Jobs/                      Queued jobs
 │   ├── Listeners/                 Event listeners
 │   ├── Models/
+│   ├── Notifications/             e.g. OtpCodeNotification
 │   ├── Policies/                  Authorization policies
-│   ├── Services/                  Domain services
+│   ├── Services/                  Domain services, bound to app/Services/Contracts
+│   │   └── Contracts/              Service interfaces (Dependency Inversion)
 │   └── Support/                   Shared helpers/utilities
 ├── database/
 ├── resources/
@@ -59,8 +62,9 @@ two front doors never accidentally share request/response concerns.
 
 ## Routes
 
-- `GET /` → `Web\HomeController` → renders `resources/views/pages/home.blade.php`
+- `GET /` → `Web\HomeController` → renders `resources/views/pages/home.blade.php` (redirects to `/dashboard` if already logged in)
 - `GET /api/v1/health` → `Api\V1\HealthController` → JSON health check
+- Auth, OTP verification, password reset, profile, and dashboard routes — see [api.md](api.md) for the full endpoint list. Web equivalents live alongside them in `routes/web.php`, guarded by the `guest`/`auth`/`otp.verified` middleware.
 
 All API routes are versioned under `/api/v1` (see `routes/api.php`), so
 breaking changes in the future can ship as `/api/v2` without touching
@@ -100,6 +104,8 @@ the Docker Compose service names (`mysql`, `redis`, `reverb`) so
 
 ## What's intentionally not here yet
 
-No player/team/tournament/match models, no scoring engine, no admin
-dashboard, no notifications. See
-[development-guidelines.md](development-guidelines.md).
+No player/team/tournament/match models, no scoring engine, no real admin
+dashboard (only the Phase 1 shell), no push/SMS notifications (OTP is
+email-only for now, behind a swappable `OtpNotifierInterface`). See
+[development-guidelines.md](development-guidelines.md) and
+[implementation-plan.md](implementation-plan.md).
