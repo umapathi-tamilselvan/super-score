@@ -3,20 +3,9 @@
 @section('title', 'Dashboard — Super Score')
 
 @section('content')
-    <div class="container py-4">
-        <nav class="d-flex justify-content-between align-items-center mb-4">
-            <span class="fw-bold"><i class="bi bi-trophy text-primary"></i> Super Score</span>
-            <div class="d-flex align-items-center gap-3">
-                <a href="{{ route('profile.edit') }}" class="text-decoration-none">
-                    <i class="bi bi-person-circle"></i> {{ $user->name }}
-                </a>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-secondary">Logout</button>
-                </form>
-            </div>
-        </nav>
+    <x-app-nav active="dashboard" />
 
+    <div class="container py-4">
         @if (session('status'))
             <div class="alert alert-success">{{ session('status') }}</div>
         @endif
@@ -60,8 +49,12 @@
         <hr class="my-4">
 
         <div class="d-flex gap-4 text-muted">
-            <span><i class="bi bi-people"></i> Teams <span class="badge text-bg-light">Phase 2</span></span>
-            <span><i class="bi bi-person-badge"></i> Players <span class="badge text-bg-light">Phase 2</span></span>
+            <a href="{{ route('teams.index') }}" class="text-decoration-none text-reset">
+                <i class="bi bi-people"></i> Teams
+            </a>
+            <a href="{{ route('players.index') }}" class="text-decoration-none text-reset">
+                <i class="bi bi-person-badge"></i> Players
+            </a>
             <span><i class="bi bi-bar-chart"></i> Statistics <span class="badge text-bg-light">Phase 6</span></span>
         </div>
     </div>

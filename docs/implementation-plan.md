@@ -120,16 +120,24 @@ Maps to flow doc §4–§7, §37 Phase 1.
 
 Maps to flow doc §8–§9, §37 Phase 2.
 
-- Migrations: `teams` (name, short_name, logo_path, city), `players` (name, dob, photo_path, role, batting_style, bowling_style), `team_player` pivot (team_id, player_id, is_captain, is_vice_captain, is_wicket_keeper).
-- Contracts + Services: `TeamServiceInterface`/`TeamService` (create/update team, assign captain/VC/WK), `PlayerServiceInterface`/`PlayerService` (create/update player, attach to team — players are reusable across teams per §9.2).
-- Form Requests: `CreateTeamRequest`, `UpdateTeamRequest`, `CreatePlayerRequest`, `AssignPlayerRequest`.
-- Resources: `TeamResource`, `PlayerResource`, `TeamSquadResource` (team + its players with roles).
-- Policies: `TeamPolicy` (only the owning user manages their team).
-- Controllers: `Api/V1/TeamController`, `Api/V1/PlayerController`; `Web/TeamController`, `Web/PlayerController`.
-- Views: `pages/teams/index.blade.php`, `create.blade.php`, `show.blade.php` (squad management), `pages/players/index.blade.php`, `create.blade.php`.
-- Tests: `TeamTest`, `PlayerTest`, `SquadAssignmentTest`.
+**Correction from the original plan:** a `Player` is a registered
+user's own cricket profile, not a free-form record a team owner types
+in for someone else — "each player creates themselves via
+registration [and profile setup]; a team owner can only add an
+*existing* player to their team." `players.user_id` is unique
+(one-to-one with `users`), and there is no "create a player for
+someone else" operation anywhere in the app.
 
-**Definition of done:** teams and players can be created, edited, and a player assigned to multiple teams with a role, on the web app — via the same services the API resources already expose.
+- Migrations: `teams` (user_id, name, short_name, logo_path, city), `players` (user_id unique, date_of_birth, role, batting_style, bowling_style — name/photo are the user's own account fields, not duplicated), `team_player` pivot (team_id, player_id, is_captain, is_vice_captain, is_wicket_keeper).
+- Contracts + Services: `TeamServiceInterface`/`TeamService` (create/update team, assign captain/VC/WK), `PlayerServiceInterface`/`PlayerService` (`saveOwnProfile` — an upsert that only ever targets the calling user; `attachToTeam`/`detachFromTeam` — any registered player can be added to any team's squad, reusable across teams per §9.2).
+- Form Requests: `CreateTeamRequest`, `UpdateTeamRequest`, `SavePlayerProfileRequest` (single self-service form — create the first time, update every time after), `AssignPlayerRequest`, `AssignTeamRoleRequest`.
+- Resources: `TeamResource`, `PlayerResource` (derives name/photo from the related `User`), `TeamSquadResource` (team + its players with roles).
+- Policies: `TeamPolicy` (only the owning user manages their team), `PlayerPolicy` (a user may create their player profile only if they don't already have one; only that user may update it — never anyone else's).
+- Controllers: `Api/V1/TeamController`, `Api/V1/PlayerController` (`index` = directory of all players; `showOwn`/`updateOwn` = the caller's own profile); `Web/TeamController`, `Web/PlayerController` (`index` = directory; `editOwn`/`updateOwn` = self-service profile form).
+- Views: `pages/teams/index.blade.php`, `create.blade.php`, `edit.blade.php`, `show.blade.php` (squad management — add any existing player, assign roles), `pages/players/index.blade.php` (directory), `profile.blade.php` (create-or-edit own profile).
+- Tests: `TeamTest`, `PlayerTest` (self-service profile, one-per-user enforcement), `SquadAssignmentTest` (any registered player addable, only the team owner can add/remove/assign roles).
+
+**Definition of done:** a user can set up their own player profile once (and only once), a team owner can create a team and add any registered player (including other users' own profiles) to its squad with a role, on the web app — via the same services the API resources already expose.
 
 ## A.3 Phase 3 — Match Setup
 
@@ -281,12 +289,12 @@ web and mobile phases stay easy to cross-reference.
 
 ## B.2 Phase 2 — Teams & Players
 
-- Screens: `TeamListScreen`, `CreateTeamScreen`, `TeamDetailScreen` (squad), `PlayerListScreen`, `AddPlayerScreen`.
-- Navigation routes added to `RootStackParamList`: `Teams`, `TeamDetail`, `Players`, `AddPlayer`.
-- `src/services/TeamService.ts`, `PlayerService.ts` — consume `Api/V1/TeamController`/`PlayerController` from A.2.
-- `src/hooks/useTeams.ts`, `usePlayers.ts`.
+- Screens: `TeamListScreen`, `CreateTeamScreen`, `TeamDetailScreen` (squad — add any existing player, assign roles), `PlayerDirectoryScreen` (browse all registered players), `MyPlayerProfileScreen` (create-or-edit the current user's own profile — no "add player for someone else" screen exists).
+- Navigation routes added to `RootStackParamList`: `Teams`, `TeamDetail`, `Players`, `MyPlayerProfile`.
+- `src/services/TeamService.ts`, `PlayerService.ts` (`getDirectory`, `getOwnProfile`, `saveOwnProfile`) — consume `Api/V1/TeamController`/`PlayerController` from A.2.
+- `src/hooks/useTeams.ts`, `usePlayerProfile.ts`.
 
-**Definition of done:** teams and players can be created, edited, and squad-assigned from mobile, matching web behavior exactly.
+**Definition of done:** a user can set up their own player profile, a team can be created, and any registered player can be added to a squad with a role — from mobile, matching web behavior exactly.
 
 ## B.3 Phase 3 — Match Setup
 

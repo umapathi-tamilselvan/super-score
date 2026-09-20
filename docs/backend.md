@@ -64,7 +64,7 @@ two front doors never accidentally share request/response concerns.
 
 - `GET /` → `Web\HomeController` → renders `resources/views/pages/home.blade.php` (redirects to `/dashboard` if already logged in)
 - `GET /api/v1/health` → `Api\V1\HealthController` → JSON health check
-- Auth, OTP verification, password reset, profile, and dashboard routes — see [api.md](api.md) for the full endpoint list. Web equivalents live alongside them in `routes/web.php`, guarded by the `guest`/`auth`/`otp.verified` middleware.
+- Auth, OTP verification, password reset, profile, dashboard, team, and player routes — see [api.md](api.md) for the full endpoint list. Web equivalents live alongside them in `routes/web.php`, guarded by the `guest`/`auth`/`otp.verified` middleware, with ownership checked via `TeamPolicy`/`PlayerPolicy`.
 
 All API routes are versioned under `/api/v1` (see `routes/api.php`), so
 breaking changes in the future can ship as `/api/v2` without touching
@@ -104,8 +104,8 @@ the Docker Compose service names (`mysql`, `redis`, `reverb`) so
 
 ## What's intentionally not here yet
 
-No player/team/tournament/match models, no scoring engine, no real admin
-dashboard (only the Phase 1 shell), no push/SMS notifications (OTP is
-email-only for now, behind a swappable `OtpNotifierInterface`). See
+No tournament/match models or scoring engine, no real admin dashboard
+(only the Phase 1 shell), no push/SMS notifications (OTP is email-only
+for now, behind a swappable `OtpNotifierInterface`). See
 [development-guidelines.md](development-guidelines.md) and
 [implementation-plan.md](implementation-plan.md).

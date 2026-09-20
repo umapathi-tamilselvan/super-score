@@ -81,6 +81,43 @@ rationale. The Blade web app (`Web\AuthController`, `Web\ProfileController`)
 calls the same services, so validation and business rules never diverge
 between web and the API.
 
+### Teams & Players (Phase 2)
+
+All endpoints below require `auth:sanctum` + OTP verified, same as the
+Profile endpoints.
+
+**A player is a registered user's own cricket profile — one per
+account, created only by that user.** There is no endpoint for creating
+a player on someone else's behalf. A team owner can only *add an
+existing player* (any registered user who has set one up) to their
+squad; `TeamPolicy` still restricts team CRUD to the owning user, but
+the player pool itself is shared across the whole app.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/teams` | List the authenticated user's teams. |
+| POST | `/api/v1/teams` | Create a team (name, short_name, city, logo). |
+| GET | `/api/v1/teams/{team}` | Team + full squad, with per-player leadership flags. |
+| PUT | `/api/v1/teams/{team}` | Update team fields. |
+| POST | `/api/v1/teams/{team}/players` | Add any registered player to this team's squad. |
+| DELETE | `/api/v1/teams/{team}/players/{player}` | Remove a player from the squad. |
+| PUT | `/api/v1/teams/{team}/role` | Assign captain/vice_captain/wicket_keeper to a squad player — clears whoever previously held that role for the team. |
+| GET | `/api/v1/players` | Directory of every registered player (name/photo come from their account), for adding to a squad. |
+| GET | `/api/v1/player-profile` | The authenticated user's own player profile, or `null` if they haven't set one up. |
+| PUT | `/api/v1/player-profile` | Create-or-update the authenticated user's own player profile (role, date_of_birth, batting/bowling style). Always acts on the caller — there is no `user_id` parameter. |
+
+Players are independent of any one team and can be attached to several
+squads — per
+[super-score-application-flow.md §9.2](super-score-application-flow.md#92-add-player),
+reinterpreted so that "adding a player" means picking an existing
+account, not typing in a new name. The business logic lives in
+`TeamService`/`PlayerService` (`app/Services`), bound to
+`TeamServiceInterface`/`PlayerServiceInterface` in
+`app/Services/Contracts`. `TeamService` owns team CRUD and leadership
+role assignment; `PlayerService` owns the user's own profile
+(`saveOwnProfile`, an upsert) and squad membership (attach/detach) — see
+[implementation-plan.md](implementation-plan.md).
+
 ## Authentication
 
 [Laravel Sanctum](https://laravel.com/docs/sanctum) is installed and
@@ -100,7 +137,7 @@ future live scores, commentary, and match event updates.
 
 ## What's intentionally not here yet
 
-No player/team/tournament/match/scoring endpoints yet (Phase 1 —
-Foundation is done; Teams & Players is next). See
+No tournament/match/scoring endpoints yet (Phases 1–2 — Foundation and
+Teams & Players — are done; Match Setup is next). See
 [development-guidelines.md](development-guidelines.md) and
 [implementation-plan.md](implementation-plan.md).

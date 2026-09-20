@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -43,6 +44,25 @@ class User extends Authenticatable
         return $this->hasMany(OtpCode::class);
     }
 
+    /**
+     * @return HasMany<Team, $this>
+     */
+    public function teams(): HasMany
+    {
+        return $this->hasMany(Team::class);
+    }
+
+    /**
+     * A user's own cricket player profile — at most one, created only by
+     * the user themselves (see PlayerPolicy).
+     *
+     * @return HasOne<Player, $this>
+     */
+    public function player(): HasOne
+    {
+        return $this->hasOne(Player::class);
+    }
+
     public function hasVerifiedOtp(): bool
     {
         return $this->email_verified_at !== null;
@@ -51,5 +71,10 @@ class User extends Authenticatable
     public function hasCompletedProfile(): bool
     {
         return $this->profile_completed_at !== null;
+    }
+
+    public function isPlayer(): bool
+    {
+        return $this->player !== null;
     }
 }

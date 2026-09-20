@@ -14,11 +14,17 @@ mobile starts. Current status:
   a dashboard shell — on both `/api/v1` and the Blade web app, sharing
   the same `AuthService`/`OtpService`/`ProfileService` layer. See
   [api.md](api.md) for the endpoint list.
-- **Phase 2 onward — not started.** No players, teams, tournaments,
-  matches, playing XI, toss, innings, overs, deliveries, wickets, extras,
-  partnerships, scorecards, statistics, leaderboards, live scoring, live
-  commentary, or analytics. No notifications, payments, social features,
-  AI features, fantasy cricket, or live streaming.
+- **Phase 2 — Teams & Players: done.** Team CRUD; a player is a
+  registered user's own cricket profile (one per account, self-service
+  only — see `PlayerPolicy`); team owners add any existing player to
+  their squad (reusable across teams) and assign
+  captain/vice-captain/wicket-keeper — on both `/api/v1` and the Blade
+  web app, sharing `TeamService`/`PlayerService`. See [api.md](api.md).
+- **Phase 3 onward — not started.** No matches, playing XI, toss,
+  innings, overs, deliveries, wickets, extras, partnerships, scorecards,
+  statistics, leaderboards, live scoring, live commentary, tournaments,
+  or analytics. No notifications, payments, social features, AI
+  features, fantasy cricket, or live streaming.
 - A React Native app (`mobile/`) with a single placeholder screen, basic
   navigation, and a centralized API client — mobile work doesn't start
   until the web track finishes (see implementation-plan.md).
