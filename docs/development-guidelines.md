@@ -20,11 +20,18 @@ mobile starts. Current status:
   their squad (reusable across teams) and assign
   captain/vice-captain/wicket-keeper — on both `/api/v1` and the Blade
   web app, sharing `TeamService`/`PlayerService`. See [api.md](api.md).
-- **Phase 3 onward — not started.** No matches, playing XI, toss,
-  innings, overs, deliveries, wickets, extras, partnerships, scorecards,
-  statistics, leaderboards, live scoring, live commentary, tournaments,
-  or analytics. No notifications, payments, social features, AI
-  features, fantasy cricket, or live streaming.
+- **Phase 3 — Match Setup: done.** Create match, select the two teams
+  (validated for a full squad each), select each team's playing XI
+  (captain + wicket keeper required, vice-captain optional), and record
+  the toss (batting/bowling-first derived, not stored) — on both
+  `/api/v1` and the Blade web app, sharing `MatchSetupService`/
+  `PlayingXiService`/`TossService`. The model is `CricketMatch` (`Match`
+  is a PHP reserved word). See [api.md](api.md).
+- **Phase 4 onward — not started.** No innings, overs, deliveries,
+  wickets, extras, partnerships, scorecards, statistics, leaderboards,
+  live scoring, live commentary, tournaments, or analytics. No
+  notifications, payments, social features, AI features, fantasy
+  cricket, or live streaming.
 - A React Native app (`mobile/`) with a single placeholder screen, basic
   navigation, and a centralized API client — mobile work doesn't start
   until the web track finishes (see implementation-plan.md).

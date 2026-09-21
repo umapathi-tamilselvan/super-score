@@ -2,7 +2,10 @@
 
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\DeliveryController;
 use App\Http\Controllers\Web\HomeController;
+use App\Http\Controllers\Web\InningsController;
+use App\Http\Controllers\Web\MatchController;
 use App\Http\Controllers\Web\PlayerController;
 use App\Http\Controllers\Web\ProfileController;
 use App\Http\Controllers\Web\TeamController;
@@ -50,5 +53,28 @@ Route::middleware('auth')->group(function () {
         Route::get('/players', [PlayerController::class, 'index'])->name('players.index');
         Route::get('/player-profile', [PlayerController::class, 'editOwn'])->name('player-profile.edit');
         Route::put('/player-profile', [PlayerController::class, 'updateOwn'])->name('player-profile.update');
+
+        Route::get('/matches', [MatchController::class, 'index'])->name('matches.index');
+        Route::get('/matches/create', [MatchController::class, 'create'])->name('matches.create');
+        Route::post('/matches', [MatchController::class, 'store'])->name('matches.store');
+        Route::get('/matches/{match}', [MatchController::class, 'show'])->name('matches.show');
+        Route::get('/matches/{match}/teams', [MatchController::class, 'editTeams'])->name('matches.teams.edit');
+        Route::put('/matches/{match}/teams', [MatchController::class, 'updateTeams'])->name('matches.teams.update');
+        Route::get('/matches/{match}/playing-xi/{team}', [MatchController::class, 'editPlayingXi'])->name('matches.playing-xi.edit');
+        Route::put('/matches/{match}/playing-xi/{team}', [MatchController::class, 'updatePlayingXi'])->name('matches.playing-xi.update');
+        Route::get('/matches/{match}/toss', [MatchController::class, 'editToss'])->name('matches.toss.edit');
+        Route::put('/matches/{match}/toss', [MatchController::class, 'updateToss'])->name('matches.toss.update');
+
+        Route::get('/matches/{match}/start-innings', [InningsController::class, 'create'])->name('innings.create');
+        Route::post('/matches/{match}/start-innings', [InningsController::class, 'store'])->name('innings.store');
+        Route::get('/innings/{innings}/live', [InningsController::class, 'live'])->name('innings.live');
+        Route::get('/innings/{innings}', [InningsController::class, 'show'])->name('innings.show');
+        Route::post('/innings/{innings}/new-batter', [InningsController::class, 'selectNewBatter'])->name('innings.new-batter');
+        Route::post('/innings/{innings}/next-over', [InningsController::class, 'startNextOver'])->name('innings.next-over');
+
+        Route::get('/innings/{innings}/deliveries', [DeliveryController::class, 'history'])->name('innings.deliveries.index');
+        Route::post('/innings/{innings}/deliveries', [DeliveryController::class, 'store'])->name('innings.deliveries.store');
+        Route::post('/innings/{innings}/deliveries/undo', [DeliveryController::class, 'undo'])->name('innings.deliveries.undo');
+        Route::put('/innings/{innings}/deliveries/last', [DeliveryController::class, 'updateLast'])->name('innings.deliveries.update-last');
     });
 });

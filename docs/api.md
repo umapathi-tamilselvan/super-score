@@ -118,6 +118,31 @@ role assignment; `PlayerService` owns the user's own profile
 (`saveOwnProfile`, an upsert) and squad membership (attach/detach) — see
 [implementation-plan.md](implementation-plan.md).
 
+### Match Setup (Phase 3)
+
+All endpoints below require `auth:sanctum` + OTP verified. Match setup
+is a linear flow — create the match, select its two teams, select each
+team's playing XI, then record the toss — and `CricketMatchPolicy`
+restricts every step to the match's organizer (the user who created
+it). The model class is named `CricketMatch` because `Match` is a
+reserved word in PHP; the table is still `matches`.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/v1/matches` | List the organizer's matches. |
+| POST | `/api/v1/matches` | Create a match (name, format, overs, date, time, venue). |
+| GET | `/api/v1/matches/{match}` | Match details, teams, playing XI completion, and toss result if recorded. |
+| PUT | `/api/v1/matches/{match}/teams` | Select Team A / Team B. Both teams must be different and each must have at least `config('cricket.playing_xi_size')` (default 11) players in its squad. |
+| PUT | `/api/v1/matches/{match}/playing-xi/{team}` | Set a team's playing XI: exactly `playing_xi_size` players from its squad, plus a captain and wicket keeper (vice-captain optional) chosen from among them. Replaces any previously saved XI for that team. |
+| PUT | `/api/v1/matches/{match}/toss` | Record the toss winner and decision (bat/bowl). Requires both teams' playing XIs to be complete first. Batting/bowling-first are derived from winner + decision, not stored separately (see `Toss::battingTeam()`/`bowlingTeam()`). |
+
+The business logic lives in `MatchSetupService`, `PlayingXiService`, and
+`TossService` (`app/Services`), bound to their respective interfaces in
+`app/Services/Contracts`. Each step's Form Request enforces the previous
+step's completion (e.g. you cannot select a playing XI before both teams
+are chosen) so the dependency chain is validated at the boundary, not
+buried in the service layer.
+
 ## Authentication
 
 [Laravel Sanctum](https://laravel.com/docs/sanctum) is installed and
@@ -137,7 +162,8 @@ future live scores, commentary, and match event updates.
 
 ## What's intentionally not here yet
 
-No tournament/match/scoring endpoints yet (Phases 1–2 — Foundation and
-Teams & Players — are done; Match Setup is next). See
+No scoring engine, no innings/overs/deliveries, no match result or
+scorecard, no tournaments (Phases 1–3 — Foundation, Teams & Players,
+and Match Setup — are done; the Scoring Engine is next). See
 [development-guidelines.md](development-guidelines.md) and
 [implementation-plan.md](implementation-plan.md).

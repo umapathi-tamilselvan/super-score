@@ -13,10 +13,9 @@
         <h1 class="h4 mb-4">Hi, {{ $user->name }} 👋</h1>
 
         <div class="d-grid mb-4">
-            <button class="btn btn-primary btn-lg" disabled>
+            <a href="{{ route('matches.create') }}" class="btn btn-primary btn-lg">
                 <i class="bi bi-plus-circle"></i> Start New Match
-                <span class="badge text-bg-light text-muted ms-2">Coming in Phase 3</span>
-            </button>
+            </a>
         </div>
 
         <div class="row g-3">
@@ -24,7 +23,11 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h2 class="h6"><i class="bi bi-broadcast text-danger"></i> Live Matches</h2>
-                        <p class="text-muted small mb-0">No live matches yet.</p>
+                        @forelse ($liveMatches as $match)
+                            <a href="{{ route('matches.show', $match) }}" class="d-block text-decoration-none text-reset small mb-1">{{ $match->name }}</a>
+                        @empty
+                            <p class="text-muted small mb-0">No live matches yet.</p>
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -32,7 +35,11 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h2 class="h6"><i class="bi bi-calendar-event text-primary"></i> Upcoming Matches</h2>
-                        <p class="text-muted small mb-0">No upcoming matches yet.</p>
+                        @forelse ($upcomingMatches as $match)
+                            <a href="{{ route('matches.show', $match) }}" class="d-block text-decoration-none text-reset small mb-1">{{ $match->name }}</a>
+                        @empty
+                            <p class="text-muted small mb-0">No upcoming matches yet.</p>
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -40,7 +47,11 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h2 class="h6"><i class="bi bi-clock-history"></i> Recent Matches</h2>
-                        <p class="text-muted small mb-0">No recent matches yet.</p>
+                        @forelse ($recentMatches as $match)
+                            <a href="{{ route('matches.show', $match) }}" class="d-block text-decoration-none text-reset small mb-1">{{ $match->name }}</a>
+                        @empty
+                            <p class="text-muted small mb-0">No recent matches yet.</p>
+                        @endforelse
                     </div>
                 </div>
             </div>

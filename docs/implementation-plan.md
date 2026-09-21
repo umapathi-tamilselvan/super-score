@@ -143,18 +143,30 @@ someone else" operation anywhere in the app.
 
 Maps to flow doc §10–§13, §37 Phase 3.
 
-- Migrations: `matches` (name, format, overs, date, time, venue, status, tournament_id nullable), `match_teams` (match_id, team_id, side), `playing_xi` (match_id, team_id, player_id, is_captain, is_vice_captain, is_wicket_keeper, is_substitute), `tosses` (match_id, winner_team_id, decision).
+**Note on naming:** the model is `App\Models\CricketMatch`, not `Match`
+— `Match` is a reserved word in PHP 8. The table is still `matches`.
+
+**Note on team selection:** any registered team can be picked as Team A
+or Team B (a directory-style pick, like the Phase 2 player pool), not
+just teams the organizer owns — an organizer/scorer role may be setting
+up a match between two other people's teams. `CricketMatchPolicy`
+still restricts *editing the match itself* (team/XI/toss steps) to
+whoever created it.
+
+- Migrations: `matches` (user_id, name, format, overs, date, time, venue, status — `tournament_id` deferred to Phase 6, no `Tournament` model yet to reference), `match_teams` (match_id, team_id, side), `playing_xi` (match_id, team_id, player_id, is_captain, is_vice_captain, is_wicket_keeper, is_substitute), `tosses` (match_id, winner_team_id, decision).
 - Contracts + Services:
-  - `MatchSetupServiceInterface`/`MatchSetupService` — create match, validate team selection (Team A ≠ Team B, both have enough registered players for the format — §11 validation rules).
-  - `PlayingXiServiceInterface`/`PlayingXiService` — select XI per team, assign captain/VC/WK, substitutes.
-  - `TossServiceInterface`/`TossService` — record toss winner + decision, derive `batting_first`/`bowling_first` (§13).
-- Form Requests: `CreateMatchRequest`, `SelectTeamsRequest`, `SelectPlayingXiRequest`, `RecordTossRequest`.
+  - `MatchSetupServiceInterface`/`MatchSetupService` — create match, validate team selection (Team A ≠ Team B, both have enough registered players for the format — §11 validation rules, `config('cricket.playing_xi_size')`).
+  - `PlayingXiServiceInterface`/`PlayingXiService` — select XI per team (captain + wicket keeper required, vice-captain optional, substitutes reserved for a later phase's UI).
+  - `TossServiceInterface`/`TossService` — record toss winner + decision; `batting_first`/`bowling_first` (§13) are **derived** (`Toss::battingTeam()`/`bowlingTeam()`), not stored as separate columns, consistent with the "derive, don't duplicate" principle used throughout.
+- Form Requests: `CreateMatchRequest`, `SelectTeamsRequest`, `SelectPlayingXiRequest` (also validates both teams are selected first), `RecordTossRequest` (also validates both playing XIs are complete first) — each step's dependency on the previous one is enforced here, not in the service.
 - Resources: `MatchResource`, `PlayingXiResource`, `TossResource`.
 - Controllers: `Api/V1/MatchController`, `Api/V1/PlayingXiController`, `Api/V1/TossController`; equivalent `Web/*` controllers.
-- Views: `pages/matches/create.blade.php`, `select-teams.blade.php`, `select-playing-xi.blade.php`, `toss.blade.php`.
+- Views: `pages/matches/{index,create,show,select-teams,select-playing-xi,toss}.blade.php` — the playing-XI picker uses Alpine.js (already loaded) for a live-filtered captain/WK/VC dropdown as squad checkboxes are ticked.
 - Tests: `MatchSetupTest`, `PlayingXiValidationTest`, `TossTest`.
 
-**Definition of done:** a full match can be configured end-to-end on the web app — created, teams selected, playing XI + captain/WK chosen per side, toss recorded.
+**A real bug this phase caught:** `PlayingXiService` originally compared submitted player IDs against squad IDs with strict (`===`/`in_array(..., true)`) checks. Laravel's `$this->put()` test helper preserves native PHP array types, so tests passed — but a real HTML form submits every field as a string, and a live smoke test against the running app failed with "All selected players must be part of the team's squad" even for valid selections. Fixed by normalizing (`array_map('intval', ...)`) at the service boundary; the regression test now submits string IDs to match real form behavior. **Lesson: `$this->post()/put()` test helpers do not reproduce real form type-coercion — cast IDs to strings in tests that exercise Blade forms, or verify against the running app before calling a web flow done.**
+
+**Definition of done:** a full match can be configured end-to-end on the web app — created, teams selected, playing XI + captain/WK chosen per side, toss recorded — verified against the actual running app, not just the test suite.
 
 ## A.4 Phase 4 — Scoring Engine (core, highest risk)
 

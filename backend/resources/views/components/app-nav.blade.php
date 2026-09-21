@@ -7,6 +7,7 @@
         </a>
         <div class="navbar-nav flex-row gap-3 me-auto ms-4">
             <a href="{{ route('dashboard') }}" class="nav-link {{ $active === 'dashboard' ? 'fw-semibold text-primary' : '' }}">Dashboard</a>
+            <a href="{{ route('matches.index') }}" class="nav-link {{ $active === 'matches' ? 'fw-semibold text-primary' : '' }}">Matches</a>
             <a href="{{ route('teams.index') }}" class="nav-link {{ $active === 'teams' ? 'fw-semibold text-primary' : '' }}">Teams</a>
             <a href="{{ route('players.index') }}" class="nav-link {{ $active === 'players' ? 'fw-semibold text-primary' : '' }}">Players</a>
         </div>

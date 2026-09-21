@@ -63,6 +63,16 @@ class User extends Authenticatable
         return $this->hasOne(Player::class);
     }
 
+    /**
+     * Matches this user organizes (creates and drives through setup).
+     *
+     * @return HasMany<CricketMatch, $this>
+     */
+    public function organizedMatches(): HasMany
+    {
+        return $this->hasMany(CricketMatch::class);
+    }
+
     public function hasVerifiedOtp(): bool
     {
         return $this->email_verified_at !== null;
